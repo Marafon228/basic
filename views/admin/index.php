@@ -18,6 +18,9 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Управление категориями', ['/category']) ?>
     </p>
 
+    <p>
+        <?= Html::a('Управление заявками', ['/problem']) ?>
+    </p>
     
 
 </div>

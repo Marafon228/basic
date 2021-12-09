@@ -3,10 +3,13 @@
 namespace app\controllers;
 
 use app\models\Problem;
+use app\models\ProblemCancelForm;
+use app\models\ProblemSolveForm;
 use app\models\ProblemSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * ProblemController implements the CRUD actions for Problem model.
@@ -101,6 +104,23 @@ class ProblemController extends Controller
         ]);
     }
 
+
+    public function actionCancel($id)
+    {
+        $model = ProblemCancelForm::findOne($id);
+
+        if ($this->request->isPost && $model->load($this->request->post())) {
+            $model->status = 'Отклонена';
+            $model->save();
+
+            return $this->redirect(['index']);
+        }
+
+        return $this->render('cancel', [
+            'model' => $model,
+        ]);
+    }
+
     /**
      * Deletes an existing Problem model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
@@ -129,5 +149,26 @@ class ProblemController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
+    }
+    public function actionSolve($id)
+    {
+        $model = ProblemSolveForm::findOne($id);
+
+        if ($this->request->isPost) {
+            if ($model->load($this->request->post()) ) {
+                $model->photoAfter = UploadedFile::getInstance($model, 'photoAfter');
+                $newFileName =  md5($model->photoAfter->baseName . '.' . $model->photoAfter->extension. time()). '.' . $model->photoAfter->extension;
+                $model->photoAfter->saveAs('uploads/' . $newFileName);
+                $model->photoAfter = $newFileName;
+                $model->status = 'Решена';
+                $model->save();
+                return $this->redirect(['/problem']);
+            }
+        } else {
+            $model->loadDefaultValues();
+        }
+        return $this->render('solve', [
+            'model' => $model,
+        ]);
     }
 }

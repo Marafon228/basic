@@ -97,7 +97,12 @@ class LkController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        if($this->findModel($id)->status == 'Новая'){
+            $this->findModel($id)->delete();
+            Yii::$app->session->setFlash('success', 'Заявка успешно удалена');
+        } else {
+            Yii::$app->session->setFlash('danger', 'Заявка не может быть удалена так как её статус был изменён администратором');
+        }
 
         return $this->redirect(['index']);
     }
